@@ -1,0 +1,27 @@
+{
+  "name": "draft-kit",
+  "version": "0.9.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test:chrome": "node tests/chrome-smoke.mjs",
+    "test:ui": "node tests/ui-smoke.mjs",
+    "test:resume": "node tests/resume-import.mjs"
+  },
+  "dependencies": {
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "10.4.1",
+    "@types/chrome": "0.1.30",
+    "@types/react": "19.2.0",
+    "@types/react-dom": "19.2.0",
+    "esbuild": "0.25.12",
+    "jsdom": "26.1.0",
+    "playwright": "1.62.1",
+    "typescript": "5.9.3"
+  }
+}

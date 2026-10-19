@@ -1,0 +1,60 @@
+name: Build macOS installers
+on:
+  workflow_dispatch:
+    inputs:
+      distribution:
+        description: Installer type
+        type: choice
+        options: [unsigned-beta, notarized]
+        default: unsigned-beta
+permissions:
+  contents: read
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            arch: arm64
+          - runner: macos-15-intel
+            arch: x86_64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    env:
+      DRAFT_KIT_APP_SIGNING_IDENTITY: ${{ secrets.DRAFT_KIT_APP_SIGNING_IDENTITY }}
+      DRAFT_KIT_INSTALLER_SIGNING_IDENTITY: ${{ secrets.DRAFT_KIT_INSTALLER_SIGNING_IDENTITY }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - name: Prepare OpenSSL for the Intel static build
+        if: matrix.arch == 'x86_64'
+        run: brew install openssl@3
+      - name: Set up signing for a public installer
+        if: inputs.distribution == 'notarized'
+        env:
+          MACOS_SIGNING_P12_BASE64: ${{ secrets.MACOS_SIGNING_P12_BASE64 }}
+          MACOS_SIGNING_P12_PASSWORD: ${{ secrets.MACOS_SIGNING_P12_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: python scripts/macos_ci_signing.py setup
+      - name: Build unsigned beta installer
+        if: inputs.distribution == 'unsigned-beta'
+        run: python scripts/build_macos.py
+      - name: Build signed and notarized installer
+        if: inputs.distribution == 'notarized'
+        run: python scripts/build_macos.py --signed --notarize
+      - uses: actions/upload-artifact@v7
+        with:
+          name: draft-kit-macOS-${{ matrix.arch }}-${{ inputs.distribution }}
+          path: release/*
+          if-no-files-found: error
+          retention-days: 14
+      - name: Remove temporary signing credentials
+        if: always() && inputs.distribution == 'notarized'
+        run: python scripts/macos_ci_signing.py cleanup

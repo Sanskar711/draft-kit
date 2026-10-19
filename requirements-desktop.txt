@@ -1,0 +1,4 @@
+-r requirements.txt
+pyobjc-core==12.2.2; sys_platform == 'darwin'
+pyobjc-framework-Cocoa==12.2.2; sys_platform == 'darwin'
+pyobjc-framework-ServiceManagement==12.2.2; sys_platform == 'darwin'

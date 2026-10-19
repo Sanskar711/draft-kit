@@ -1,0 +1,46 @@
+name: Source checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-15]
+        python: ['3.11', '3.12']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+      - name: Backend and portability checks
+        run: python -m pytest -q
+      - name: Install extension dependencies
+        run: npm ci
+      - name: Check and build extension
+        run: |
+          npm run typecheck
+          npm run build
+          npm run test:resume
+      - name: Check the committed extension matches its sources
+        run: git diff --exit-code -- extension/dist
+      - name: Source startup and UI workflow
+        env:
+          COMPOSER_TEST_PYTHON: python
+        run: npm run test:ui

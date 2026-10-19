@@ -1,0 +1,4 @@
+-r requirements.txt
+pystray==0.19.5; sys_platform == 'win32'
+pillow==12.3.0; sys_platform == 'win32'
+pyperclip==1.11.0; sys_platform == 'win32'
