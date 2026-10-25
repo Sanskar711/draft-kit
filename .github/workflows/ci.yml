@@ -30,7 +30,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements-dev.txt
       - name: Backend and portability checks
-        run: python -m pytest -q
+        # --timeout surfaces a hung test as a failure with a thread dump.
+        # Without it a stuck test burns the job timeout and uploads no log.
+        # signal-based timeouts need SIGALRM, so Windows requires thread.
+        run: python -m pytest -q --timeout=120 --timeout-method=thread
       - name: Install extension dependencies
         run: npm ci
       - name: Check and build extension
