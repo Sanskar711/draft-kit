@@ -43,7 +43,7 @@ For audience distribution, the maintainer should sign the app and installer with
 
 ## Shared requirements and troubleshooting
 
-Each user connects their own eligible ChatGPT account; AI requests use that account's allowance. The demo works without sign-in. Pairing codes expire after ten minutes and are single-use, while saved pairing survives restarting. Use New pairing code if needed.
+Each user connects their own eligible ChatGPT account; AI requests use that account's allowance. The demo works without sign-in. Pairing codes expire after ten minutes and are single-use, while saved pairing survives restarting. Use New pairing code if needed. Ten failed attempts lock pairing until the companion restarts, so paste the code instead of retyping it; New pairing code clears the lock. The extension also needs Chrome 116 or newer.
 
 Only one companion can use the same saved-state directory. Quit the old desktop/source companion before switching. Startup fails if Windows Credential Locker or Mac Keychain is unavailable. Check the tray/menu status and OS credential store; no hosted backend is required.
 

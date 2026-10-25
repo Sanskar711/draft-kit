@@ -1,10 +1,16 @@
 name: Source checks
 on:
+  # A branch with an open pull request matched both triggers, so every push
+  # ran the six-job matrix twice. Branches are covered by pull_request.
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   source:
     strategy:
@@ -30,7 +36,14 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements-dev.txt
       - name: Backend and portability checks
-        run: python -m pytest -q
+        # ci_pytest bounds the run itself. A job killed by timeout-minutes is
+        # force-terminated and its log is discarded, which is why every hung
+        # Windows run so far reported "cancelled" with nothing to read.
+        # --timeout only covers test bodies, not collection or interpreter
+        # exit, and needs the thread method because Windows has no SIGALRM.
+        # -v names each test as it starts, so the log shows where it stopped.
+        timeout-minutes: 10
+        run: python scripts/ci_pytest.py -v --timeout=120 --timeout-method=thread
       - name: Install extension dependencies
         run: npm ci
       - name: Check and build extension
