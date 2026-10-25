@@ -1,10 +1,16 @@
 name: Source checks
 on:
+  # A branch with an open pull request matched both triggers, so every push
+  # ran the six-job matrix twice. Branches are covered by pull_request.
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   source:
     strategy:
