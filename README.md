@@ -32,7 +32,7 @@ The profession-neutral placeholders, résumé/pasted context, drafting features,
 
 | Requirement | Windows | macOS |
 | --- | --- | --- |
-| Browser | Current desktop Google Chrome | Current desktop Google Chrome |
+| Browser | Current desktop Google Chrome; **116 minimum** | Current desktop Google Chrome; **116 minimum** |
 | Python | **64-bit Python 3.12 recommended**, 3.11 minimum | Python 3.12 recommended, 3.11 minimum; use native Apple Silicon Python on M-series Macs |
 | Credentials | Signed-in Windows user with Credential Manager available | Unlocked login Keychain |
 | Internet | First dependency installation; ChatGPT sign-in/generation; public job links | Same |
@@ -211,9 +211,12 @@ First setup compiles the encryption package and can take several minutes. Keep n
 | Apple could not verify an `unsigned-beta.pkg` | That is the optional unsigned installer path. See [the Mac Gatekeeper guide](docs/INSTALLING.md); the source steps above do not need a package. |
 | Virtual environment broke after moving the folder or upgrading Python | Stop the companion, remove **only the project's `.venv` folder**, then rerun startup. Saved profile/credentials are stored elsewhere. |
 | Keychain / Credential Locker unavailable | Run as your normal signed-in user. Unlock macOS login Keychain or check Windows Credential Manager. Remove custom keyring overrides if you configured them. Do not run as administrator to work around it. |
-| Chrome cannot load the extension | Select `extension/dist`, confirm `manifest.json` exists, enable Developer mode and check whether your browser is managed. |
+| Chrome cannot load the extension | Select `extension/dist`, confirm `manifest.json` exists, enable Developer mode and check whether your browser is managed. Check `chrome://version`: the extension requires Chrome 116 or newer and older builds refuse to load it. |
 | Companion not reachable | Keep its terminal running; use the exact `127.0.0.1` address and matching port; click Check connection. Check local security software's loopback rules. No inbound LAN exposure is needed. |
-| Pairing expired or already used | Restart the companion and pair with its newly printed code. Keep codes private. |
+| Pairing expired or already used | Restart the companion and pair with its newly printed code. Keep codes private. A code is consumed by its first successful pairing, so pairing a second browser profile also needs a restart. |
+| Pairing refused after repeated mistyping | Ten failed code attempts lock pairing until you restart the companion. Stop it with Ctrl+C, start it again and copy the new code rather than retyping it. |
+| "Pair the extension with your companion" while the panel still reads "Paired and reachable" | The extension's saved token no longer matches the companion, usually after pairing a different browser profile or moving the unpacked folder. The status line only reports that a token exists, not that it still works. Restart the companion and use **Pair again** with the fresh code. |
+| Panel shows "Companion found · pairing needed" | The companion is running but this extension has no saved token yet. Pair it with the code from the terminal. |
 | Another companion uses this data directory | Stop the other terminal or optional Mac app first. A leftover `process.lock` file is harmless; do not delete it while a companion is running. |
 | Port 1455 already in use | Stop the old companion or start with `--port 1456` and update Connect. |
 | ChatGPT is connected but no models / plan permission | Reconnect, grant plan usage if eligible, and check account/workspace access. Free-account support is not promised. Report a sanitized error if eligibility is correct but inference fails. |
